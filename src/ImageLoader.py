@@ -6,6 +6,10 @@ from PIL import Image
 
 
 class ImageProcessor:
+    """
+    This class is responsible for loading and preparing images from to extract the
+    edge pixels from the image
+    """
     def __init__(self, directory: Path) -> None:
         self.directory: Path = directory
         self.output_directory: str = str(directory) + "\\output"
@@ -141,13 +145,12 @@ def main():
     # Check if the width and height of the image is the same
     image_processor.check_condition("Width and Height don't match", any(len(edge) == 0 for edge in edge_list))
 
+    # Add the image name with its corresponding edge structure
     image_with_edges: list[tuple[str, list[tuple[str, list[int]]]]] = []
     for i in range(len(images)):
         image_path = str(images[i])
         image_edges = edge_list[i]
         image_with_edges.append((image_path, image_edges))
-
-    print(image_with_edges)
 
     image_processor.to_file(images_to_string(image_with_edges, image_processor.directory))
 
