@@ -1,6 +1,4 @@
 import sys
-import json
-from typing import List, Tuple, Any
 from pathlib import Path
 from PIL import Image
 
@@ -10,6 +8,7 @@ class ImageProcessor:
     This class is responsible for loading and preparing images from to extract the
     edge pixels from the image
     """
+
     def __init__(self, directory: Path) -> None:
         self.directory: Path = directory
         self.output_directory: str = str(directory) + "\\output"
@@ -24,14 +23,17 @@ class ImageProcessor:
         image_files = [file for file in image_files if file.suffix.lower() in image_extensions]
         return image_files
 
+    # Function to write to a file
     def to_file(self, message: str) -> None:
         with open(self.output_directory, 'w') as file:
             file.write(message)
 
-    def check_condition(self, message: str, condition: bool) -> None:
-        if condition:
-            self.error(f"Error: {message}")
+    # Function to check a condition and display an error if condition is true
+    def check_condition(self, message: str, condition_for_failure: bool) -> None:
+        if condition_for_failure:
+            self.__error(f"Error: {message}")
 
+    # Private method to handle errors and exit
     def __error(self, message: str) -> None:
         ImageProcessor.to_file(self, message)
         exit(1)
@@ -70,15 +72,25 @@ class ImageProcessor:
                 ("RIGHT", [ImageProcessor.extract_pixel(image, palette, width - 1, j) for j in range(width)]),
             ]
 
+    # Static method to get edges from multiple images
     @staticmethod
     def get_edges_from_images(images) -> list[list[tuple[str, list[int]]]]:
-        return [ImageProcessor.get_edges_from_an_image(Image.open(image)) for image in
-                images]
+        # Open the images and retrieve their sizes
+        opened_images: list[Image] = [Image.open(image) for image in images]
+
+        not_same_dimensions = any(image.size != opened_images[0].size for image in opened_images)
+
+        if not_same_dimensions:
+            return []
+        else:
+            return [ImageProcessor.get_edges_from_an_image(opened_image) for opened_image in
+                    opened_images]
 
 
-def images_to_string(image_with_edges: list[tuple[str, list[tuple[str, list[int]]]]], directory: Path) -> str:
+# Function to convert images to a JSON string
+def images_to_string(image_with_edges: list[tuple[str, list[tuple[str, list[int]]]]]) -> str:
     """
-    Writes the structure if image and edges to a list in this format
+    Writes the structure if image and edges to a list in this json format
     [
         {
             IMAGE_NAME_1: {
@@ -98,27 +110,30 @@ def images_to_string(image_with_edges: list[tuple[str, list[tuple[str, list[int]
         }
     ]
     :param image_with_edges:
-    :param directory:
     :return: the structure of the images list in json
     """
 
     output_data = []
 
     for image_name, image_info in image_with_edges:
-        formatted_data = {
-            image_name: {
-                image_info[0][0]: ' '.join(map(str, image_info[0][1])),
-                image_info[1][0]: ' '.join(map(str, image_info[1][1])),
-                image_info[2][0]: ' '.join(map(str, image_info[2][1])),
-                image_info[3][0]: ' '.join(map(str, image_info[3][1])),
+        formatted_data = """
+        {
+            %s: {
+                %s
+                %s
+                %s
+                %s
             }
         }
+        """ % (image_name,
+               ' '.join(map(str, image_info[0][1])),
+               ' '.join(map(str, image_info[1][1])),
+               ' '.join(map(str, image_info[2][1])),
+               ' '.join(map(str, image_info[3][1]))
+               )
         output_data.append(formatted_data)
 
-    # Serialize the list of dictionaries to a JSON-formatted string
-    json_output: str = json.dumps(output_data, indent=4)  # indent for pretty formatting
-
-    return json_output
+    return '\n'.join(output_data)
 
 
 def process_directions(edge_dir_with_pixel: list[tuple[str, list[int]]]) -> str:
@@ -143,7 +158,11 @@ def main():
     edge_list: list[list[tuple[str, list[int]]]] = ImageProcessor.get_edges_from_images(images)
 
     # Check if the width and height of the image is the same
-    image_processor.check_condition("Width and Height don't match", any(len(edge) == 0 for edge in edge_list))
+    image_processor.check_condition("The Width and Height of an image don't match",
+                                    any(len(edge) == 0 for edge in edge_list))
+
+    # Check if the width and height of all the image is the same
+    image_processor.check_condition("Width and Height of all images don't match", len(edge_list) == 0)
 
     # Add the image name with its corresponding edge structure
     image_with_edges: list[tuple[str, list[tuple[str, list[int]]]]] = []
@@ -152,7 +171,7 @@ def main():
         image_edges = edge_list[i]
         image_with_edges.append((image_path, image_edges))
 
-    image_processor.to_file(images_to_string(image_with_edges, image_processor.directory))
+    image_processor.to_file(images_to_string(image_with_edges))
 
 
 if __name__ == "__main__":
