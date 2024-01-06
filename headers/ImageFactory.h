@@ -4,33 +4,55 @@
 
 #ifndef IMAGECONTAINER_H
 #define IMAGECONTAINER_H
+#include "../headers/Image.h"
 #include <memory>
 #include <string>
 #include <vector>
 
+
+/**
+ * \brief Represents a pair of image file name and its connections.
+ */
 using image_pairs = std::pair<std::string, std::vector<std::string>>;
-using Image_t = void *;
 
 
+/**
+ * \brief Factory class for managing Image objects.
+ */
 class ImageFactory {
 public:
     /**
-     * \brief Stores Images data and performes operations on them
-     * \param images_info List of image_info to create a list of images
+     * \brief Constructs an ImageFactory object.
+     * \param images_info List of image_info to create a list of images.
      */
-    explicit ImageFactory(const std::vector<image_pairs>& images_info)
-        : image_container(new std::vector<Image_t>()) {
-        for (const auto& image_pair: images_info) {
-            image_container->push_back(create_image(&image_pair));
-        }
-    }
+    explicit ImageFactory(const std::vector<image_pairs>& images_info);
 
-    ~ImageFactory() { delete image_container; }
+    /**
+     * \brief Show all images in the container
+     */
+    void display() const;
+
+    /**
+     * \brief Retrieves the number of images in the container.
+     * \return The size of the image container.
+     */
+    [[nodiscard]] unsigned long long container_size() const;
+
+    /**
+     * \brief Destroys the ImageFactory object.
+     */
+    ~ImageFactory();
 
 private:
-    std::vector<Image_t>* image_container;
+    // Container for Image objects.
+    const std::vector<const Image *>* image_container{};
 
-    static Image_t create_image(const image_pairs* images_info);
+    /**
+     * \brief Creates an Image object from image info.
+     * \param images_info Pointer to image info.
+     * \return The created Image object.
+     */
+    static Image* create_image(const image_pairs* images_info);
 };
 
 #endif //IMAGECONTAINER_H
