@@ -4,7 +4,9 @@ project(WaveFunctionCollapse)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(WaveFunctionCollapse src/main.cpp
-        src/FIleHandler.cpp
-        Header/FileHandler.h
-        src/ImageContainer.cpp
-        Header/ImageContainer.h)
+        src/FIleParser.cpp
+        headers/FileParser.h
+        src/ImageFactory.cpp
+        headers/ImageFactory.h
+        src/Image.cpp
+        headers/Image.h)
