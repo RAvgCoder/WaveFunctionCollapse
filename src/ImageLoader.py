@@ -2,6 +2,14 @@ import sys
 from pathlib import Path
 from PIL import Image
 
+OUTPUT_FORMAT = """
+%s
+    %s
+    %s
+    %s
+    %s
+"""
+
 
 class ImageProcessor:
     """
@@ -116,24 +124,15 @@ def images_to_string(image_with_edges: list[tuple[str, list[tuple[str, list[int]
     output_data = []
 
     for image_name, image_info in image_with_edges:
-        formatted_data = """
-        {
-            %s: {
-                %s
-                %s
-                %s
-                %s
-            }
-        }
-        """ % (image_name,
-               ' '.join(map(str, image_info[0][1])),
-               ' '.join(map(str, image_info[1][1])),
-               ' '.join(map(str, image_info[2][1])),
-               ' '.join(map(str, image_info[3][1]))
-               )
+        formatted_data = OUTPUT_FORMAT % (image_name,
+                                          ' '.join(map(str, image_info[0][1])),
+                                          ' '.join(map(str, image_info[1][1])),
+                                          ' '.join(map(str, image_info[2][1])),
+                                          ' '.join(map(str, image_info[3][1]))
+                                          )
         output_data.append(formatted_data)
 
-    return '\n'.join(output_data)
+    return ''.join(output_data)
 
 
 def process_directions(edge_dir_with_pixel: list[tuple[str, list[int]]]) -> str:
