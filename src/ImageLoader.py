@@ -99,24 +99,18 @@ class ImageProcessor:
 def images_to_string(image_with_edges: list[tuple[str, list[tuple[str, list[int]]]]]) -> str:
     """
     Writes the structure if image and edges to a list in this json format
-    [
-        {
-            IMAGE_NAME_1: {
+            IMAGE_NAME_1
                 Top: "1 2 3"
                 Bottom: "1 2 3"
                 LEFT: "1 2 3"
                 Right: "1 2 3"
-            }
-        },
-        {
-            "IMAGE_NAME_n": {
+
+             IMAGE_NAME_n
                 Top: "1 2 3"
                 Bottom: "1 2 3"
                 LEFT: "1 2 3"
                 Right: "1 2 3"
-            }
-        }
-    ]
+
     :param image_with_edges:
     :return: the structure of the images list in json
     """
