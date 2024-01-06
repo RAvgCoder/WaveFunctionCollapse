@@ -1,16 +1,25 @@
 #include <iostream>
 
-#include <string>
+#include <memory>
 #include <sstream>
-#include <fstream>
+#include <string>
+#include <vector>
 
-#include "../Header/FileHandler.h"
-#include "../Header/ImageContainer.h"
+#include "../headers/FileParser.h"
+#include "../headers/ImageFactory.h"
 
 
 int main() {
-    openFile("resources/tile_down.png");
-    view_pixel_data();
+    std::cout << "Input the absolute file path to the image" << std::endl;
+    // C:\\Users\\egbor\\CLionProjects\\WaveFunctionCollapse\\resources
+
+    std::string absolute_path;
+    std::cin >> absolute_path;
+
+    const std::unique_ptr<ImageFactory> image_factory = processImages(absolute_path);
+
+    image_factory->display();
+
 
     return 0;
 }
